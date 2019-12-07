@@ -53,7 +53,7 @@ package:
 
 functions:
   hello:
-    handler: CsharpHandlers::AwsDotnetCsharp.Handler::Hello
+    handler: CsharpHandlers::MyRokuSkill.MyRoku::Handle
 
     # you can add packaging information here
     package:
@@ -64,8 +64,8 @@ functions:
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-#    events:
-#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
+    events:
+      - alexaSkill: amzn1.ask.skill.054d57ba-e57c-4860-8a20-e1c676bd85df
 
 #    Define function environment variables here
 #    environment:
