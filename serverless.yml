@@ -29,20 +29,17 @@ provider:
 #  region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - "sqs:GetQueueUrl"
+      - "sqs:ListQueues"
+      - "sqs:SendMessage"
+    Resource:
+      Fn::Join:
+        - ""
+        - - "arn:aws:sqs:us-east-1:857061981067:my-roku-skill-queue"
+          - "Ref" : "MyRokuSkillQueue"
 
 # you can define service wide environment variables here
 #  environment:
@@ -65,7 +62,7 @@ functions:
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
     events:
-      - alexaSkill: amzn1.ask.skill.054d57ba-e57c-4860-8a20-e1c676bd85df
+      - alexaSkill: amzn1.ask.skill.510a5f4e-d7e6-4a42-8f37-2fd72b0bb233
 
 #    Define function environment variables here
 #    environment:

@@ -1,11 +1,16 @@
 using Alexa.NET.Request;
 using Alexa.NET.Request.Type;
 using Alexa.NET.Response;
+using Amazon;
 using Amazon.Lambda.Core;
+using Amazon.SQS;
+using MyRokuSkill.Models;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
-using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using static MyRokuSkill.Models.Roku;
 
 [assembly:LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
@@ -52,16 +57,66 @@ namespace MyRokuSkill
 
             if (req.Intent.Name == "RemoteIntent")
             {
-                Console.WriteLine("REMOTE INTENT BABY");
                 var keyVal = req.Intent.Slots["Key"];
-                Console.WriteLine(keyVal.Value);
+                var button = ButtonType.Home;
 
-                var client = new RestClient("http://192.168.86.192:8060");
-                var restRequest = new RestRequest($"keypress/{keyVal.Value}");
-                var response = await client.ExecutePostTaskAsync(restRequest);
+                switch (keyVal.Value.ToLowerInvariant())
+                {
+                    case "up":
+                        button = ButtonType.Up;
+                        break;
+                    case "down":
+                        button = ButtonType.Down;
+                        break;
+                    case "left":
+                        button = ButtonType.Left;
+                        break;
+                    case "right":
+                        button = ButtonType.Right;
+                        break;
+                    case "back":
+                        button = ButtonType.Back;
+                        break;
+                    case "play":
+                        button = ButtonType.Play;
+                        break;
+                    case "rewind":
+                        button = ButtonType.Rewind;
+                        break;
+                    case "forward":
+                        button = ButtonType.FastForward;
+                        break;
+                    case "ok":
+                        button = ButtonType.OK;
+                        break;
+                    case "mute":
+                        button = ButtonType.Mute;
+                        break;
+                    default:
+                        button = ButtonType.Home;
+                        break;
+                }
 
-                Console.WriteLine(response.ErrorMessage);
-                Console.WriteLine(response.StatusCode);
+                // var client = new RestClient("http://192.168.86.192:8060");
+                // var restRequest = new RestRequest($"keypress/{keyVal.Value}");
+                // var response = await client.ExecutePostTaskAsync(restRequest);
+
+                // Console.WriteLine(response.ErrorMessage);
+                // Console.WriteLine(response.StatusCode);
+
+                // Send to SQS Queue
+                var sqsConfig = new AmazonSQSConfig();
+                sqsConfig.RegionEndpoint = RegionEndpoint.USEast1;
+                var sqsClient = new AmazonSQSClient(sqsConfig);
+
+                var queue = await sqsClient.GetQueueUrlAsync("my-roku-skill-queue", default(CancellationToken));
+
+                Console.WriteLine(queue.QueueUrl);
+
+                var rokuCommand = new Roku(button);
+                var rokuCommandJson = JsonConvert.SerializeObject(rokuCommand);
+
+                await sqsClient.SendMessageAsync(queue.QueueUrl, rokuCommandJson, default(CancellationToken));
 
                 return new SkillResponse {
                     Response= new ResponseBody
