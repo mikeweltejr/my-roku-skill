@@ -6,6 +6,8 @@ namespace MyRokuSkill.Models
         public int VolumeLevel { get; set; }
         public CommandType Command { get; set; }
         public ButtonType Button { get; set; }
+        public RoomType Room { get; set; }
+
 
         public enum ButtonType
         {
@@ -13,7 +15,7 @@ namespace MyRokuSkill.Models
             Down=2,
             Left=3,
             Right=4,
-            OK=5,
+            Select=5,
             Power=6,
             Play=7,
             FastForward=8,
@@ -30,22 +32,31 @@ namespace MyRokuSkill.Models
             Volume=3
         }
 
-        public Roku(string launchApp)
+        public enum RoomType
+        {
+            LivingRoom=1,
+            Bedroom=2
+        }
+
+        public Roku(string launchApp, RoomType room)
         {
             LaunchApplication = launchApp;
             Command = CommandType.Launch;
+            Room = room;
         }
 
-        public Roku(int volume)
+        public Roku(int volume, RoomType room)
         {
             Command = CommandType.Volume;
             VolumeLevel = volume;
+            Room = room;
         }
 
-        public Roku(ButtonType button)
+        public Roku(ButtonType button, RoomType room)
         {
             Button = button;
             Command = CommandType.KeyPress;
+            Room = room;
         }
     }
 }
